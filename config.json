@@ -1,1 +1,18 @@
-{}
+{
+  "auth": {
+    "facebook": {
+      "key": "191995201517761",
+      "secret": "f34c49ad88d0dc61ff18250749d0e43d",
+      "url": "http://localhost:8080/auth/callback/facebook"
+    },
+    "google": {
+      "key": "354245251463-pqoj699nq153sd7eb3hlrsfk1hukpelv.apps.googleusercontent.com",
+      "secret": "vEKSfxeoIYvY7zh_bRvSorzq",
+      "url": "http://localhost:8080/auth/callback/google"
+    },
+    "github": {
+      "key": "",
+      "secret": ""
+    }
+  }
+}
