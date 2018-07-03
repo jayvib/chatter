@@ -1,6 +1,11 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+	"log"
+	"fmt"
+)
 
 // MustAuth is an helper function for authentication the handler before use by the
 // client.
@@ -30,4 +35,19 @@ func (a *authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.next.ServeHTTP(w, r)
+}
+
+// loginHandler is an HandlerFunc use for logging in to the chat app.
+// It uses third party login process.
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	sep := strings.Split(r.URL.Path, "/")
+	action := sep[2]
+	provider := sep[3]
+	switch action {
+	case "login":
+		log.Println("TODO handle login for", provider)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Auth action %s not supported", action)
+	}
 }
