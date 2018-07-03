@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"net/http"
 	"log"
+	"chatter/trace"
 )
 
 const (
@@ -20,12 +21,13 @@ var upgrader = &websocket.Upgrader{
 }
 
 // newRoom is an helper function for creating a new room.
-func newRoom(ctx context.Context) *room {
+func newRoom(ctx context.Context, t trace.Tracer) *room {
 	return &room {
 		forward: make(chan []byte, messageBufferSize),
 		join: make(chan *client),
 		leave: make(chan *client),
 		clients: make(map[*client]bool),
+		tracer: t,
 		ctx: ctx,
 	}
 }
@@ -40,6 +42,8 @@ type room struct {
 	leave chan *client
 	// clients holds all current clients in this room.
 	clients map[*client]bool
+	// tracer will receive trace information of activity.
+	tracer trace.Tracer
 	// context is the mechanism for cleaning up the room
 	ctx context.Context
 }
@@ -52,14 +56,19 @@ func (r *room) run() {
 		select {
 		case client := <-r.join:
 			r.clients[client] = true
+			r.tracer.Trace("New client joined")
 		case client := <-r.leave:
 			delete(r.clients, client)
 			close(client.send)
+			r.tracer.Trace("Client left")
 		case msg := <-r.forward:
+			r.tracer.Trace("Message received: ", string(msg))
 			for client := range r.clients {
 				client.send <- msg
+				r.tracer.Trace(" -- sent to client")
 			}
 		case <-r.ctx.Done():
+			r.tracer.Trace("Room shutting down")
 			return
 		}
 	}

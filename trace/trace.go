@@ -20,6 +20,19 @@ func New(writer io.Writer) Tracer {
 	}
 }
 
+// Off is an helper function that return an implementation
+// Tracer that print nothing.
+func Off() Tracer {
+	return nilTracer{}
+}
+
+// nilTracer is an implementation of the Tracer interface
+// use for turning off the tracing.
+type nilTracer struct {}
+
+// Trace will do nothing.
+func (nilTracer) Trace(args ...interface{}) {}
+
 // tracer is a private object that will be use during
 // the initialization of the new Tracer interface
 // it exposes only its method.

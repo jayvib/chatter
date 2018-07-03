@@ -5,6 +5,7 @@ import (
 	"log"
 	"context"
 	"flag"
+	"chatter/trace"
 )
 
 var addr string
@@ -17,7 +18,8 @@ func main() {
 	flag.Parse()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	r := newRoom(ctx)
+	//tracer := trace.New(os.Stdout)
+	r := newRoom(ctx, trace.Off())
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 	go r.run()
