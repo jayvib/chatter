@@ -26,7 +26,7 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"Host": r.Host,
 	}
 	if authCookie, err := r.Cookie("auth"); err == nil {
-		data["UserData"] = objx.MustFromURLQuery(authCookie.Value)
+		data["UserData"] = objx.MustFromBase64(authCookie.Value)
 	}
 	t.templ.Execute(w, data)
 }
