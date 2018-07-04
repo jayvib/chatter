@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"github.com/stretchr/objx"
 )
 
 // templateHandler is an handler represent a single template
@@ -21,5 +22,11 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			template.ParseFiles(
 				filepath.Join("templates", t.filename)))
 	})
-	t.templ.Execute(w, r)
+	data := map[string]interface{}{
+		"Host": r.Host,
+	}
+	if authCookie, err := r.Cookie("auth"); err == nil {
+		data["UserData"] = objx.MustFromURLQuery(authCookie.Value)
+	}
+	t.templ.Execute(w, data)
 }
