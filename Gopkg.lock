@@ -78,11 +78,11 @@
     "bson",
     "internal/json"
   ]
-  revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+  revision = "9856a29383ce1c59f308dd1cf0363a79b5bef6b5"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d309f7ede664e2fe1a507e6569f33d359f962041ef16e0854a430e9d48399283"
+  inputs-digest = "73572308d01f4901b034f8e1139e68e8fcd224b702fcf7413bc2efc068188095"
   solver-name = "gps-cdcl"
   solver-version = 1
