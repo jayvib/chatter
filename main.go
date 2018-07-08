@@ -31,7 +31,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	//tracer := trace.New(os.Stdout)
-	r := newRoom(ctx, trace.Off())
+	r := newRoom(ctx, trace.Off(), UseGravatarAvatar)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)

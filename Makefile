@@ -19,3 +19,6 @@ run: build
 vendor:
 	dep ensure -update 
 
+.PHONY: test
+test:
+	go test -v
