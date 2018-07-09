@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/gomniauth/providers/facebook"
 	"github.com/stretchr/gomniauth/providers/google"
 	"github.com/stretchr/objx"
+	"crypto/md5"
+	"io"
 )
 
 // newExternalAuth initialize the gomniauth providers that
@@ -113,11 +115,17 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			)
 			return
 		}
+		// create a user id using md5 hashing
+		m := md5.New()
+		io.WriteString(m, user.Email())
+		userId := fmt.Sprintf("%x", m.Sum(nil))
 		authCookieValue := objx.New(map[string]interface{}{
+			"userid": userId,
 			"name": user.Name(),
 			"avatar_url": user.AvatarURL(),
 			"email": user.Email(),
 		}).MustBase64()
+
 		http.SetCookie(w, &http.Cookie{
 			Name: "auth",
 			Value: authCookieValue,
