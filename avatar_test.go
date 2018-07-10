@@ -5,21 +5,24 @@ import (
 	"path/filepath"
 	"io/ioutil"
 	"os"
+	gomnitest "github.com/stretchr/gomniauth/test"
 )
 
 func TestAuthAvatar(t *testing.T) {
 	var authAvatar AuthAvatar
-	client := new(client)
-	url, err := authAvatar.GetAvatarURL(client)
+	testUser := &gomnitest.TestUser{}
+	testUser.On("AvatarURL").Return("", ErrNoAvatarURL)
+	testChatUser := &chatUser{ User: testUser }
+	url, err := authAvatar.GetAvatarURL(testChatUser)
 	if err != ErrNoAvatarURL {
 		t.Error("AuthAvatar.GetAvatarURL should return" +
 			"ErrNoAvatarURL when no value present")
 	}
 	testUrl := "http://url-to-gravatar/"
-	client.userData = map[string]interface{}{
-		"avatar_url": testUrl,
-	}
-	url, err = authAvatar.GetAvatarURL(client)
+	testUser = &gomnitest.TestUser{}
+	testUser.On("AvatarURL").Return(testUrl, nil)
+	testChatUser.User = testUser
+	url, err = authAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("AuthAvatar.GetAvatarURL should return no error when value present")
 	}
@@ -28,13 +31,12 @@ func TestAuthAvatar(t *testing.T) {
 	}
 }
 
-func TestGravatar(t *testing.T) {
+func TestGravatarAvatar(t *testing.T) {
 	var gravatarAvatar GravatarAvatar
-	client := new(client)
-	client.userData = map[string]interface{}{
-		"userid": "2f64808765d95b66da158110bd756230",
+	testChatUser := &chatUser{
+		uniqueID: "2f64808765d95b66da158110bd756230",
 	}
-	url, err := gravatarAvatar.GetAvatarURL(client)
+	url, err := gravatarAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("GravatarAvatar.GetAvatarURL should not return an error")
 	}
@@ -49,11 +51,10 @@ func TestFileSystemAvatar(t *testing.T) {
 	ioutil.WriteFile(filename, []byte{}, 0777)
 	defer os.Remove(filename)
 	var fileSystemAvatar FileSystemAvatar
-	client := new(client)
-	client.userData = map[string]interface{}{
-		"userid": "abc",
+	testChatUser := &chatUser{
+		uniqueID: "abc",
 	}
-	url, err := fileSystemAvatar.GetAvatarURL(client)
+	url, err := fileSystemAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("FileSystemAvatar.GetAvatarURL should not return an error")
 	}

@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"path"
 )
 
 var ErrNoAvatarURL = errors.New("chatter: unable to get an avatar URL")
@@ -14,7 +16,7 @@ type Avatar interface {
 	//
 	// It will return an ErrNoAvatarURL error if the
 	// url wasn't found.
-	GetAvatarURL(c *client) (url string, err error)
+	GetAvatarURL(c ChatUser) (url string, err error)
 }
 
 var UseAuthAvatar AuthAvatar
@@ -23,13 +25,12 @@ var UseAuthAvatar AuthAvatar
 // provided by the third party OAUTH provider that is stored in client user data.
 type AuthAvatar struct {}
 
-func (AuthAvatar) GetAvatarURL(c *client) (string, error) {
-	if url, ok := c.userData["avatar_url"]; ok {
-		if urlStr, ok := url.(string); ok {
-			return urlStr, nil
-		}
+func (AuthAvatar) GetAvatarURL(c ChatUser) (string, error) {
+	url := c.AvatarURL()
+	if url == "" {
+		return "", ErrNoAvatarURL
 	}
-	return "", ErrNoAvatarURL
+	return url, nil
 }
 
 var UseGravatarAvatar GravatarAvatar
@@ -38,11 +39,9 @@ var UseGravatarAvatar GravatarAvatar
 // from the Gravatar api using the email provided by the client.
 type GravatarAvatar struct {}
 
-func (GravatarAvatar) GetAvatarURL(c *client) (string, error) {
-	if userId, ok := c.userData["userid"]; ok {
-			if userIdStr, ok := userId.(string); ok {
-			return fmt.Sprintf("//www.gravatar.com/avatar/%s", userIdStr), nil
-		}
+func (GravatarAvatar) GetAvatarURL(c ChatUser) (string, error) {
+	if userId := c.UniqueID(); userId != "" {
+			return fmt.Sprintf("//www.gravatar.com/avatar/%s", userId), nil
 	}
 	return "", ErrNoAvatarURL
 }
@@ -51,10 +50,23 @@ var UseFileSystemAvatar FileSystemAvatar
 
 type FileSystemAvatar struct {}
 
-func (FileSystemAvatar) GetAvatarURL(c *client) (string, error) {
-	if userId, ok := c.userData["userid"]; ok {
-		if userIdStr, ok := userId.(string); ok {
-			return fmt.Sprintf("/avatars/%s.jpg", userIdStr), nil
+func (FileSystemAvatar) GetAvatarURL(c ChatUser) (string, error) {
+	if userId := c.UniqueID(); userId != "" {
+		files, err := ioutil.ReadDir("avatars")
+		if err != nil {
+			return "", ErrNoAvatarURL
+		}
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			match, err := path.Match(userId + "*", file.Name())
+			if err != nil {
+				return "", ErrNoAvatarURL
+			}
+			if match {
+				return "/avatars/" + file.Name(), nil
+			}
 		}
 	}
 	return "", ErrNoAvatarURL

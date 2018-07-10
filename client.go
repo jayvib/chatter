@@ -28,8 +28,9 @@ func (c *client) read() {
 			return
 		}
 		msg.When = time.Now()
-		msg.Name = c.userData["name"].(string)
-		msg.AvatarURL, _ = c.room.avatar.GetAvatarURL(c) // this need to be optimized.
+		if avatarUrl, ok := c.userData["avatar_url"]; ok {
+			msg.AvatarURL = avatarUrl.(string)
+		}
 		c.room.forward <- msg
 	}
 }

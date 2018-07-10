@@ -9,8 +9,12 @@ import (
 	"os"
 )
 
-var addr string
-
+var (
+	// addr is the address of the chatter URL
+	addr string
+	// set the active Avatar implementation
+	avatars Avatar = UseFileSystemAvatar
+)
 const configPath = "config.json"
 
 func init() {

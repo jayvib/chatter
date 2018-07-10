@@ -28,7 +28,6 @@ func newRoom(ctx context.Context, t trace.Tracer, a Avatar) *room {
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  t,
-		avatar: a,
 		ctx:     ctx,
 	}
 }
@@ -45,8 +44,6 @@ type room struct {
 	clients map[*client]bool
 	// tracer will receive trace information of activity.
 	tracer trace.Tracer
-	// avatar will be the getter of the avatar URL of the client.
-	avatar Avatar
 	// context is the mechanism for cleaning up the room
 	ctx context.Context
 }

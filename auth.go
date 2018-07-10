@@ -10,7 +10,29 @@ import (
 	"github.com/stretchr/objx"
 	"crypto/md5"
 	"io"
+	gomniauthcommon "github.com/stretchr/gomniauth/common"
+	"log"
 )
+
+// ChatUser represent a single user of chatter this provide two methods
+// that will be use whenever a function needs a unique id and avatar url.
+type ChatUser interface {
+	UniqueID() string
+	AvatarURL() string
+}
+
+// chatUser is an implementation of ChatUser interface this can be
+// a default ChatUser interface implementation if the client doesn't
+// have its own implementation.
+type chatUser struct {
+	gomniauthcommon.User
+	uniqueID string
+}
+
+// UniqueID provides a unique id of the chatter user.
+func (u chatUser) UniqueID() string {
+	return u.uniqueID
+}
 
 // newExternalAuth initialize the gomniauth providers that
 // will be use during the OAUTH authentication of the user.
@@ -107,22 +129,21 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		user, err := provider.GetUser(creds)
 		if err != nil {
-			http.Error(
-				w,
-				fmt.Sprintf("Error when trying to complete auth for" +
-					"%s: %s", provider, err),
-				http.StatusInternalServerError,
-			)
-			return
+			log.Fatalln("Error when trying to get user from", provider, "-", err)
 		}
+		chatUser := &chatUser{ User: user }
 		// create a user id using md5 hashing
 		m := md5.New()
-		io.WriteString(m, user.Email())
-		userId := fmt.Sprintf("%x", m.Sum(nil))
+		io.WriteString(m, strings.ToLower(user.Email()))
+		chatUser.uniqueID = fmt.Sprintf("%x", m.Sum(nil))
+		avatarURL, err := avatars.GetAvatarURL(chatUser)
+		if err != nil {
+			log.Fatalln("Error when trying to GetAvatarURL", "-", err)
+		}
 		authCookieValue := objx.New(map[string]interface{}{
-			"userid": userId,
+			"userid": chatUser.uniqueID,
 			"name": user.Name(),
-			"avatar_url": user.AvatarURL(),
+			"avatar_url": avatarURL,
 			"email": user.Email(),
 		}).MustBase64()
 
