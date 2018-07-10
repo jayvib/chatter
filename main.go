@@ -13,7 +13,11 @@ var (
 	// addr is the address of the chatter URL
 	addr string
 	// set the active Avatar implementation
-	avatars Avatar = UseFileSystemAvatar
+	avatars Avatar = TryAvatars{
+		UseFileSystemAvatar,
+		UseGravatarAvatar,
+		UseAuthAvatar,
+	}
 )
 const configPath = "config.json"
 

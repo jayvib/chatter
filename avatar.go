@@ -71,3 +71,14 @@ func (FileSystemAvatar) GetAvatarURL(c ChatUser) (string, error) {
 	}
 	return "", ErrNoAvatarURL
 }
+
+type TryAvatars []Avatar
+
+func (a TryAvatars) GetAvatarURL(c ChatUser) (string, error) {
+	for _, avatar := range a {
+		if url, err := avatar.GetAvatarURL(c); err == nil {
+			return url, nil
+		}
+	}
+	return "", ErrNoAvatarURL
+}
