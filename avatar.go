@@ -48,6 +48,8 @@ func (GravatarAvatar) GetAvatarURL(c ChatUser) (string, error) {
 
 var UseFileSystemAvatar FileSystemAvatar
 
+// FileSystemAvatar is an Avatar interface implementation. This will get the
+// url of the avatar that uploaded by the client in the local server.
 type FileSystemAvatar struct {}
 
 func (FileSystemAvatar) GetAvatarURL(c ChatUser) (string, error) {
