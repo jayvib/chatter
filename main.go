@@ -22,10 +22,14 @@ var (
 const configPath = "config.json"
 
 func init() {
-	flag.StringVar(&addr, "addr", ":8080", "The address of the chat application")
+	flag.StringVar(&addr, "addr", ":8180", "The address of the chat application")
 }
 
 func main() {
+	addr := os.Getenv("PORT")
+	if addr == "" {
+		log.Fatalln("chatter: port can't be found in environment variable")
+	}
 	flag.Parse()
 	confFile, err := os.Open(configPath)
 	if err != nil {
