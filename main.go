@@ -26,8 +26,8 @@ func init() {
 }
 
 func main() {
-	addr := os.Getenv("PORT")
-	if addr == "" {
+	addr := ":" + os.Getenv("PORT")
+	if addr == ":" {
 		log.Fatalln("chatter: port can't be found in environment variable")
 	}
 	flag.Parse()
