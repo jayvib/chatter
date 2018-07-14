@@ -39,7 +39,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	//tracer := trace.New(os.Stdout)
-	r := newRoom(ctx, trace.Off(), UseFileSystemAvatar)
+	r := newRoom(ctx, trace.Off(), UseAuthAvatar)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.Handle("/upload", &templateHandler{filename: "upload.html"})
